@@ -1,0 +1,40 @@
+// models/user_model.dart
+class User {
+  final int id;
+  final String name;
+  final String email;
+  final String? photoUrl;
+  final String role;
+  final String? token;
+
+  User({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+    this.photoUrl,
+    this.token,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['data']['id'],
+      name: json['data']['name'],
+      email: json['data']['email'],
+      photoUrl: json['data']['photoUrl'],
+      role: json['data']['role'],
+      token: json['token'],
+    );
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['data']['id'],
+      name: map['data']['name'],
+      email: map['data']['email'],
+      photoUrl: map['data']['photoUrl'],
+      role: map['data']['role'],
+      token: map['token'],
+    );
+  }
+}

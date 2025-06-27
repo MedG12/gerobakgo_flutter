@@ -13,9 +13,12 @@ class AuthViewModel with ChangeNotifier {
 
   AuthViewModel(this._authRepo) {
     // Inisialisasi token jika ada
-    _authRepo.getToken().then((token) {
+    print('Initializing AuthViewModel...  Fetching token... ${_token}');
+    _authRepo.getToken().then((token) async {
       if (token != null) {
         _token = token;
+        _currentUser = await _authRepo.getCurrentUser();
+        print('User: ${_currentUser?.toJson()}');
         notifyListeners();
       }
     });
@@ -30,8 +33,12 @@ class AuthViewModel with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
       _currentUser = await _authRepo.login(email, password);
+
+      // Simpan data user ke shared preferences
+      _authRepo.saveUser(_currentUser!);
       _saveToken(_currentUser!.token!);
       return true;
     } catch (e) {
@@ -45,7 +52,7 @@ class AuthViewModel with ChangeNotifier {
 
   // Simpan token di saved storage
   Future<void> _saveToken(String token) async {
-    _authRepo.saveToken(token, DateTime.now().add(Duration(days: 30)));
+    _authRepo.saveToken(token, DateTime.now().add(Duration(minutes: 30)));
     _token = token;
     notifyListeners();
   }

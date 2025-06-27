@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:gerobakgo_with_api/models/user_model.dart';
 import 'package:dio/dio.dart';
 
 class APIService {
-  static const String _baseUrl = 'http://127.0.0.1:8000/api';
+  static const String _baseUrl = 'http://10.0.2.2:8000/api';
   final dio = Dio(
     BaseOptions(
       baseUrl: _baseUrl,

@@ -1,8 +1,11 @@
 // repositories/auth_repository.dart
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../services/APIService.dart';
 import '../models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository {
   final APIService _apiService;
@@ -35,5 +38,26 @@ class AuthRepository {
       key: 'auth_token_expiry',
       value: expiry.toIso8601String(),
     );
+  }
+
+  Future<void> saveUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'user',
+      jsonEncode(user.toJson()),
+    ); // Objek → JSON → String
+  }
+
+  Future<User?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString('user'); // Ambil JSON string
+    try {
+      final userMap =
+          jsonDecode(userJson!) as Map<String, dynamic>; // String → Map
+      return User.fromMap(userMap); // Map → Objek User
+    } catch (e) {
+      print('Error parsing user data: $e');
+      return null; // Kembalikan null jika parsing gagal
+    }
   }
 }

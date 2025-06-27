@@ -16,6 +16,18 @@ class User {
     this.token,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'data': {
+        'id': id,
+        'name': name,
+        'email': email,
+        'photoUrl': photoUrl,
+        'role': role,
+      },
+    };
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['data']['id'],

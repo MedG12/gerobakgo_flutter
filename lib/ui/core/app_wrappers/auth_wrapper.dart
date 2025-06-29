@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/view_models/auth_viewmodel.dart';
-import 'package:gerobakgo_with_api/views/login_page.dart';
-import 'package:gerobakgo_with_api/views/profile_page.dart';
+import 'package:gerobakgo_with_api/ui/core/view_models/auth_viewmodel.dart';
+import 'package:gerobakgo_with_api/ui/auth/widgets/login_page.dart';
+import 'package:gerobakgo_with_api/ui/profile/widgets/profile_page.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
@@ -21,11 +21,24 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final authViewModel = context.read<AuthViewModel>();
-          if (authViewModel.token != null) {
-            return ProfilePage();
-          } else {
-            return LoginPage();
-          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (authViewModel.token != null) {
+              Navigator.pushReplacementNamed(context, '/profile');
+            } else {
+              Navigator.pushReplacementNamed(context, '/login');
+            }
+          });
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: Lottie.asset(
+                'assets/animations/splash_animation.json',
+                width: 300,
+                height: 300,
+                fit: BoxFit.contain,
+              ),
+            ),
+          );
         } else {
           return Scaffold(
             backgroundColor: Colors.white,

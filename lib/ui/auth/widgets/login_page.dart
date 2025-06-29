@@ -1,8 +1,10 @@
 // views/login_page.dart
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/views/profile_page.dart';
+import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/ui/core/ui/textFormField.dart';
+import 'package:gerobakgo_with_api/ui/profile/widgets/profile_page.dart';
 import 'package:provider/provider.dart';
-import '../view_models/auth_viewmodel.dart';
+import '../../core/view_models/auth_viewmodel.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -35,10 +37,10 @@ class _LoginPageState extends State<LoginPage> {
                 // Title
                 Text(
                   'Sign In',
-                  style: TextStyle(
-                    fontSize: 32,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -46,128 +48,56 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 60),
 
                 // Email Field
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Email',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 1.5,
-                        ), // Purple border
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          hintText: 'Masukkan email Anda',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: Colors.grey[600],
-                            size: 20,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Email tidak boleh kosong';
-                          }
-                          if (!RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                          ).hasMatch(value)) {
-                            return 'Format email tidak valid';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
+                TextFormFieldCustom(
+                  controller: _emailController,
+                  labelText: 'Email',
+                  hintText: 'Masukkan email Anda',
+                  valueKey: 1,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email tidak boleh kosong';
+                    }
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    ).hasMatch(value)) {
+                      return 'Format email tidak valid';
+                    }
+                    return null;
+                  },
+                  prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color: Colors.grey[600],
+                    size: 20,
+                  ),
                 ),
 
                 const SizedBox(height: 24),
 
                 // Password Field
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Password',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
+                TextFormFieldCustom(
+                  controller: _passwordController,
+                  labelText: 'Password',
+                  hintText: 'Masukkan password Anda',
+                  valueKey: 2,
+                  obscureText: _obscurePassword,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: AppTheme.grey,
+                      size: 20,
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 1.5,
-                        ), // Purple border
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextFormField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        decoration: InputDecoration(
-                          hintText: '••••••••',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
-                          prefixIcon: Icon(
-                            Icons.lock_outline,
-                            color: Colors.grey[600],
-                            size: 20,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-
-                              color: Colors.grey[600],
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              );
-                            },
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Password tidak boleh kosong';
-                          }
-                          if (value.length < 6) {
-                            return 'Password minimal 6 karakter';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
+                  ),
+                  prefixIcon: Icon(
+                    Icons.lock_outline,
+                    color: Colors.grey[600],
+                    size: 20,
+                  ),
                 ),
-
                 const SizedBox(height: 12),
 
                 // Forgot Password
@@ -183,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: AppTheme.primaryDark,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -193,31 +123,32 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 32),
 
-                // Sign In Button - Updated color
                 ElevatedButton(
                   onPressed:
                       authViewModel.isLoading
                           ? null
                           : () async {
-                            final response = await authViewModel.login(
-                              _emailController.text,
-                              _passwordController.text,
-                            );
-                            if (response) {
-                              Navigator.pushReplacementNamed(
-                                context,
-                                '/profile',
+                            if (_formKey.currentState!.validate()) {
+                              final response = await authViewModel.login(
+                                _emailController.text,
+                                _passwordController.text,
                               );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    authViewModel.errorMessage ??
-                                        'Login failed',
+                              if (response) {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/profile',
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      authViewModel.errorMessage ??
+                                          'Login failed',
+                                    ),
+                                    backgroundColor: Colors.red,
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              }
                             }
                           },
                   style: ElevatedButton.styleFrom(
@@ -263,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         'or',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        style: TextStyle(color: AppTheme.grey, fontSize: 14),
                       ),
                     ),
                     Expanded(child: Divider(color: Colors.grey[300])),
@@ -278,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
-                    side: BorderSide(color: Colors.grey[300]!),
+                    side: BorderSide(color: AppTheme.grey),
                     elevation: 0,
                     minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(
@@ -330,10 +261,14 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       "Didn't have a account? ",
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: AppTheme.grey),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
                       child: Text(
                         'Sign Up',
                         style: TextStyle(

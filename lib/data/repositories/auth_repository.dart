@@ -25,14 +25,14 @@ class AuthRepository {
     await _apiService.logout(token);
   }
 
-  // Future<void> register(
-  //   String name,
-  //   String email,
-  //   String password,
-  //   String role,
-  // ) async {
-  //   return await _apiService.register(name, email, password, role);
-  // }
+  Future<User> register(
+    String email,
+    String password,
+    String name,
+    String role,
+  ) async {
+    return await _apiService.register(name, email, password, role);
+  }
 
   Future<String?> getToken() async {
     final token = await _storage.read(key: 'auth_token');

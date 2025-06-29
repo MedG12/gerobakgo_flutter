@@ -1,7 +1,7 @@
 // view_models/auth_viewmodel.dart
 import 'package:flutter/foundation.dart';
-import '../repositories/auth_repository.dart';
-import '../models/user_model.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../../data/models/user_model.dart';
 
 class AuthViewModel with ChangeNotifier {
   final AuthRepository _authRepo;
@@ -40,6 +40,29 @@ class AuthViewModel with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get token => _token;
 
+  Future<bool> register(
+    String email,
+    String password,
+    String name,
+    String role,
+  ) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authRepo.register(email, password, name, role);
+      login(email, password);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
@@ -50,8 +73,6 @@ class AuthViewModel with ChangeNotifier {
       // Simpan data user ke shared preferences
       _authRepo.saveUser(_currentUser!);
       _saveToken(_currentUser!.token!);
-
-      print('Login successful: ${_currentUser!.token}');
       return true;
     } catch (e) {
       _errorMessage = e.toString();

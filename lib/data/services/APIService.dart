@@ -1,4 +1,4 @@
-import 'package:gerobakgo_with_api/models/user_model.dart';
+import 'package:gerobakgo_with_api/data/models/user_model.dart';
 import 'package:dio/dio.dart';
 
 class APIService {
@@ -88,6 +88,46 @@ class APIService {
   // Logout
   Future<void> logout(String token) async {
     _requestWithToken(method: 'POST', endpoint: '/user/logout', token: token);
+  }
+
+  // Register
+  Future<User> register(
+    String name,
+    String email,
+    String password,
+    String role,
+  ) async {
+    try {
+      final response = await dio.post(
+        '/user/register',
+        data: {
+          'name': name,
+          'email': email,
+          'password': password,
+          'role': role,
+        },
+      );
+      switch (response.statusCode) {
+        case 201:
+          return User.fromMap(response.data);
+        case 422:
+          throw Exception(response.data['message']);
+        default:
+          throw Exception('Failed to register');
+      }
+    } on DioException catch (e) {
+      // Tangani error dari Dio
+      if (e.response != null) {
+        final errorData = e.response?.data;
+        if (errorData is Map<String, dynamic> &&
+            errorData.containsKey('message')) {
+          throw AuthException(errorData['message']);
+        }
+      }
+      throw Exception(e.message ?? 'An error occurred during registration');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
   }
 }
 

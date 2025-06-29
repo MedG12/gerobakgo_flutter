@@ -1,9 +1,9 @@
 // views/profile_page.dart
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/views/login_page.dart';
+import 'package:gerobakgo_with_api/ui/auth/widgets/login_page.dart';
 import 'package:provider/provider.dart';
-import '../view_models/auth_viewmodel.dart';
-import '../models/user_model.dart';
+import '../../core/view_models/auth_viewmodel.dart';
+import '../../../data/models/user_model.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

@@ -17,6 +17,23 @@ class AuthRepository {
     return await _apiService.login(email, password);
   }
 
+  Future<void> logout(String token) async {
+    await _storage.delete(key: 'auth_token');
+    await _storage.delete(key: 'auth_token_expiry');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user');
+    await _apiService.logout(token);
+  }
+
+  // Future<void> register(
+  //   String name,
+  //   String email,
+  //   String password,
+  //   String role,
+  // ) async {
+  //   return await _apiService.register(name, email, password, role);
+  // }
+
   Future<String?> getToken() async {
     final token = await _storage.read(key: 'auth_token');
     final expiry = await _storage.read(key: 'auth_token_expiry');

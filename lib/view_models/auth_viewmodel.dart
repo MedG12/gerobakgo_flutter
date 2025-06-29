@@ -11,7 +11,6 @@ class AuthViewModel with ChangeNotifier {
   bool _isLoading = false;
   String? _token;
   bool _isInitialized = false;
-  bool get isInitialized => _isInitialized;
 
   AuthViewModel(this._authRepo) {
     init();
@@ -35,6 +34,7 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
+  bool get isInitialized => _isInitialized;
   User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -47,14 +47,31 @@ class AuthViewModel with ChangeNotifier {
 
     try {
       _currentUser = await _authRepo.login(email, password);
-
       // Simpan data user ke shared preferences
       _authRepo.saveUser(_currentUser!);
       _saveToken(_currentUser!.token!);
+
+      print('Login successful: ${_currentUser!.token}');
       return true;
     } catch (e) {
       _errorMessage = e.toString();
       return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logout() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _authRepo.logout(_token!);
+      _currentUser = null;
+      _token = null;
+    } catch (e) {
+      _errorMessage = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();

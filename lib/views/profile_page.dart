@@ -1,5 +1,6 @@
 // views/profile_page.dart
 import 'package:flutter/material.dart';
+import 'package:gerobakgo_with_api/views/login_page.dart';
 import 'package:provider/provider.dart';
 import '../view_models/auth_viewmodel.dart';
 import '../models/user_model.dart';
@@ -13,7 +14,7 @@ class ProfilePage extends StatelessWidget {
     final User? user = authViewModel.currentUser;
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text('Please login first')));
+      return LoginPage();
     }
 
     return Scaffold(
@@ -48,7 +49,7 @@ class ProfilePage extends StatelessWidget {
             _buildProfileItem('Role', user.role),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () => {},
+              onPressed: () => authViewModel.logout(),
               child: const Text('Logout'),
             ),
           ],

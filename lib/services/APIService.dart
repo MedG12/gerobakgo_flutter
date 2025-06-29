@@ -2,7 +2,7 @@ import 'package:gerobakgo_with_api/models/user_model.dart';
 import 'package:dio/dio.dart';
 
 class APIService {
-  static const String _baseUrl = 'http://10.0.2.2:8000/api';
+  static const String _baseUrl = 'http://192.168.18.60:8000/api';
   final dio = Dio(
     BaseOptions(
       baseUrl: _baseUrl,
@@ -20,7 +20,7 @@ class APIService {
     String? token,
     Map<String, dynamic>? body,
   }) async {
-    final uri = '$_baseUrl/$endpoint';
+    final uri = "$_baseUrl$endpoint";
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -83,6 +83,11 @@ class APIService {
     } catch (e) {
       throw Exception('An unexpected error occurred: $e');
     }
+  }
+
+  // Logout
+  Future<void> logout(String token) async {
+    _requestWithToken(method: 'POST', endpoint: '/user/logout', token: token);
   }
 }
 

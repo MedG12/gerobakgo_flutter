@@ -1,6 +1,6 @@
 name: gerobakgo_with_api
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -13,6 +13,7 @@ dependencies:
   dio: ^5.8.0+1
   shared_preferences: ^2.5.3
   flutter_secure_storage: ^9.2.4
+  lottie: ^3.3.1
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +24,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/animations/

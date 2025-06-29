@@ -10,18 +10,29 @@ class AuthViewModel with ChangeNotifier {
   String? _errorMessage;
   bool _isLoading = false;
   String? _token;
+  bool _isInitialized = false;
+  bool get isInitialized => _isInitialized;
 
   AuthViewModel(this._authRepo) {
-    // Inisialisasi token jika ada
-    print('Initializing AuthViewModel...  Fetching token... ${_token}');
-    _authRepo.getToken().then((token) async {
+    init();
+  }
+
+  Future<bool> init() async {
+    try {
+      final token = await _authRepo.getToken();
       if (token != null) {
         _token = token;
         _currentUser = await _authRepo.getCurrentUser();
-        print('User: ${_currentUser?.toJson()}');
-        notifyListeners();
       }
-    });
+      _isInitialized = true;
+      notifyListeners();
+      return true; // Tambahkan return value
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isInitialized = true; // Tetap set initialized meskipun error
+      notifyListeners();
+      return false;
+    }
   }
 
   User? get currentUser => _currentUser;

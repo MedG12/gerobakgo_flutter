@@ -19,7 +19,7 @@ class User {
   Map<String, dynamic> toJson() {
     return {
       'data': {
-        'id': id,
+        'user_id': id,
         'name': name,
         'email': email,
         'photoUrl': photoUrl,
@@ -30,7 +30,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['data']['id'],
+      id: json['data']['user_id'],
       name: json['data']['name'],
       email: json['data']['email'],
       photoUrl: json['data']['photoUrl'],
@@ -41,7 +41,7 @@ class User {
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['data']['id'],
+      id: map['data']['user_id'],
       name: map['data']['name'],
       email: map['data']['email'],
       photoUrl: map['data']['photoUrl'],

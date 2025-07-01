@@ -1,3 +1,4 @@
+import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/data/models/user_model.dart';
 import 'package:dio/dio.dart';
 
@@ -28,6 +29,8 @@ class APIService {
     };
     final options = Options(headers: headers);
     switch (method) {
+      case 'GET':
+        return await dio.get(uri, options: options);
       case 'POST':
         return await dio.post(uri, options: options, data: body);
       case 'PUT':
@@ -50,6 +53,7 @@ class APIService {
           if (response.data['success'] == false) {
             throw Exception(response.data['message'] ?? 'Unauthorized');
           }
+          print('Login response: ${response.data}');
           return User.fromMap(response.data);
         case 401:
           throw Exception('Unauthorized');
@@ -129,6 +133,35 @@ class APIService {
       throw Exception('An unexpected error occurred: $e');
     }
   }
+
+  Future<List<Merchant>> getMerchants(String token) async {
+    final response = await _requestWithToken(
+      method: 'GET',
+      token: token,
+      endpoint: '/merchant',
+    );
+    if (response.statusCode == 200) {
+      final data = response.data['data'] as List;
+      return data.map((merchant) => Merchant.fromJson(merchant)).toList();
+    } else {
+      throw Exception('Failed to load merchants');
+    }
+  }
+
+  Future<Merchant> getMerchantById(String id, String token) async {
+    final response = await _requestWithToken(
+      method: 'GET',
+      token: token,
+      endpoint: '/merchant/$id',
+    );
+    if (response.statusCode == 200) {
+      return Merchant.fromJson(response.data['data']);
+    } else {
+      throw Exception('Failed to load merchant');
+    }
+  }
+
+  
 }
 
 class AuthException implements Exception {

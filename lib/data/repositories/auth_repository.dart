@@ -71,6 +71,7 @@ class AuthRepository {
     try {
       final userMap =
           jsonDecode(userJson!) as Map<String, dynamic>; // String → Map
+
       return User.fromMap(userMap); // Map → Objek User
     } catch (e) {
       print('Error parsing user data: $e');

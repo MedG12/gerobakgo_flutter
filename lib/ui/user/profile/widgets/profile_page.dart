@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:gerobakgo_with_api/ui/auth/widgets/login_page.dart';
 import 'package:provider/provider.dart';
-import '../../core/view_models/auth_viewmodel.dart';
-import '../../../data/models/user_model.dart';
+import '../../../core/view_models/auth_viewmodel.dart';
+import '../../../../data/models/user_model.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -39,7 +39,7 @@ class ProfilePage extends StatelessWidget {
               radius: 50,
               backgroundImage:
                   user.photoUrl != null
-                      ? NetworkImage(user.photoUrl!)
+                      ? NetworkImage("http://192.168.18.60:8000/storage/${user.photoUrl!}")
                       : const AssetImage('assets/default_avatar.png')
                           as ImageProvider,
             ),

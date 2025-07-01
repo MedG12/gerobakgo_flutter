@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
 import 'package:gerobakgo_with_api/ui/core/ui/textFormField.dart';
-import 'package:gerobakgo_with_api/ui/profile/widgets/profile_page.dart';
+import 'package:gerobakgo_with_api/ui/user/profile/widgets/profile_page.dart';
 import 'package:provider/provider.dart';
 import '../../core/view_models/auth_viewmodel.dart';
 
@@ -136,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                               if (response) {
                                 Navigator.pushReplacementNamed(
                                   context,
-                                  '/profile',
+                                  '/user/home',
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -186,18 +186,15 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 32),
 
-                // Divider
+                // Divider with "or"
                 Row(
                   children: [
-                    Expanded(child: Divider(color: Colors.grey[300])),
+                    Expanded(child: Divider(color: AppTheme.grey.withValues(alpha: 0.5))),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'or',
-                        style: TextStyle(color: AppTheme.grey, fontSize: 14),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text("or", style: AppTheme.textTheme.bodySmall),
                     ),
-                    Expanded(child: Divider(color: Colors.grey[300])),
+                    Expanded(child: Divider(color: AppTheme.grey.withValues(alpha: 0.5))),
                   ],
                 ),
 

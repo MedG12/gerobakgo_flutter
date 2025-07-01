@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gerobakgo_with_api/ui/core/view_models/auth_viewmodel.dart';
-import 'package:gerobakgo_with_api/ui/auth/widgets/login_page.dart';
-import 'package:gerobakgo_with_api/ui/profile/widgets/profile_page.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
@@ -23,7 +21,7 @@ class AuthWrapper extends StatelessWidget {
           final authViewModel = context.read<AuthViewModel>();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (authViewModel.token != null) {
-              Navigator.pushReplacementNamed(context, '/profile');
+              Navigator.pushReplacementNamed(context, '/user/home');
             } else {
               Navigator.pushReplacementNamed(context, '/login');
             }

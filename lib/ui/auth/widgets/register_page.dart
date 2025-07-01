@@ -220,7 +220,11 @@ class _RegisterPageState extends State<RegisterPage> {
                           if (response) {
                             setState(() => _isLoading = true);
                             // Navigate to home or next page
-                            Navigator.pushReplacementNamed(context, '/profile');
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/profile',
+                              (Route<dynamic> route) => false,
+                            );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -234,7 +238,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
+                        backgroundColor:
+                            authViewModel.isLoading
+                                ? AppTheme.grey.withValues(alpha: 0.5)
+                                : AppTheme.primary,
                         foregroundColor: AppTheme.white,
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
@@ -242,7 +249,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       child:
-                          _isLoading
+                          authViewModel.isLoading
                               ? const SizedBox(
                                 height: 20,
                                 width: 20,
@@ -267,12 +274,16 @@ class _RegisterPageState extends State<RegisterPage> {
               // Divider with "or"
               Row(
                 children: [
-                  Expanded(child: Divider(color: AppTheme.grey)),
+                  Expanded(
+                    child: Divider(color: AppTheme.grey.withValues(alpha: 0.5)),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text("or", style: AppTheme.textTheme.bodySmall),
                   ),
-                  Expanded(child: Divider(color: AppTheme.grey)),
+                  Expanded(
+                    child: Divider(color: AppTheme.grey.withValues(alpha: 0.5)),
+                  ),
                 ],
               ),
 

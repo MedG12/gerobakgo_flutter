@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/data/models/user_model.dart';
 import 'package:dio/dio.dart';
@@ -94,6 +96,38 @@ class APIService {
     _requestWithToken(method: 'POST', endpoint: '/user/logout', token: token);
   }
 
+  Future<String> uploadImage(File imagePath, int id, String token) async {
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(imagePath.path),
+    });
+    try {
+      final response = await dio.post(
+        '/user/upload/$id',
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: formData,
+      );
+      return response.data['data'];
+    } on DioException catch (e) {
+      // Tangani error dari Dio
+      if (e.response != null) {
+        final errorData = e.response?.data;
+        if (errorData is Map<String, dynamic> &&
+            errorData.containsKey('message')) {
+          throw AuthException(errorData['message']);
+        }
+      }
+      throw Exception(e.message ?? 'An error occurred during image upload');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
   // Register
   Future<User> register(
     String name,
@@ -161,7 +195,36 @@ class APIService {
     }
   }
 
-  
+  Future<User> updateUser(int id, String name, String token) async {
+    try {
+      final response = await _requestWithToken(
+        method: 'PUT',
+        token: token,
+        endpoint: '/user/update/${id}',
+        body: {'name': name},
+      );
+      switch (response.statusCode) {
+        case 200:
+          return User.fromMap(response.data);
+        case 422:
+          throw Exception(response.data['message']);
+        default:
+          throw Exception('Failed to update user');
+      }
+    } on DioException catch (e) {
+      // Tangani error dari Dio
+      if (e.response != null) {
+        final errorData = e.response?.data;
+        if (errorData is Map<String, dynamic> &&
+            errorData.containsKey('message')) {
+          throw AuthException(errorData['message']);
+        }
+      }
+      throw Exception(e.message ?? 'An error occurred during update user');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
 }
 
 class AuthException implements Exception {

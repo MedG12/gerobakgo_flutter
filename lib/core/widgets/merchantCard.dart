@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
-import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 
 Widget merchantCard(BuildContext context, Merchant merchant) {
   return GestureDetector(

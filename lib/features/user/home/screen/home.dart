@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
-import 'package:gerobakgo_with_api/ui/core/ui/merchantCard.dart';
-import 'package:gerobakgo_with_api/ui/user/home/view_model/home_viewmodel.dart';
+import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/widgets/merchantCard.dart';
+import 'package:gerobakgo_with_api/features/user/home/view_model/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

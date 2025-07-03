@@ -1,10 +1,11 @@
 // views/login_page.dart
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
-import 'package:gerobakgo_with_api/ui/core/ui/textFormField.dart';
-import 'package:gerobakgo_with_api/ui/user/profile/widgets/profile_page.dart';
+import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/widgets/textFormField.dart';
+import 'package:gerobakgo_with_api/features/user/profile/screen/profile_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../core/view_models/auth_viewmodel.dart';
+import '../../../core/view_models/auth_viewmodel.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -54,12 +55,9 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: 'Masukkan email Anda',
                   valueKey: 1,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email tidak boleh kosong';
-                    }
                     if (!RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(value)) {
+                    ).hasMatch(value!)) {
                       return 'Format email tidak valid';
                     }
                     return null;
@@ -134,10 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                                 _passwordController.text,
                               );
                               if (response) {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  '/user/home',
-                                );
+                                context.go('/home');
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -189,12 +184,20 @@ class _LoginPageState extends State<LoginPage> {
                 // Divider with "or"
                 Row(
                   children: [
-                    Expanded(child: Divider(color: AppTheme.grey.withValues(alpha: 0.5))),
+                    Expanded(
+                      child: Divider(
+                        color: AppTheme.grey.withValues(alpha: 0.5),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text("or", style: AppTheme.textTheme.bodySmall),
                     ),
-                    Expanded(child: Divider(color: AppTheme.grey.withValues(alpha: 0.5))),
+                    Expanded(
+                      child: Divider(
+                        color: AppTheme.grey.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ],
                 ),
 
@@ -264,7 +267,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/register');
+                        context.go('/register');
                       },
                       child: Text(
                         'Sign Up',

@@ -1,5 +1,6 @@
 // repositories/auth_repository.dart
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -59,10 +60,19 @@ class AuthRepository {
 
   Future<void> saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('user')) await prefs.remove('user');
     await prefs.setString(
       'user',
       jsonEncode(user.toJson()),
     ); // Objek → JSON → String
+  }
+
+  Future<User> updateUser(int id, String name, String token) async {
+    return _apiService.updateUser(id, name, token);
+  }
+
+  Future<String> uploadImage(File image, int id, String token) async {
+    return _apiService.uploadImage(image, id, token);
   }
 
   Future<User?> getCurrentUser() async {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 
 class TextFormFieldCustom extends StatelessWidget {
   final TextEditingController? controller;
@@ -10,6 +10,7 @@ class TextFormFieldCustom extends StatelessWidget {
   final Icon? prefixIcon;
   final bool? obscureText;
   final Widget? suffixIcon;
+  final bool enabled;
 
   const TextFormFieldCustom({
     super.key,
@@ -21,6 +22,7 @@ class TextFormFieldCustom extends StatelessWidget {
     this.prefixIcon,
     this.obscureText,
     this.suffixIcon,
+    this.enabled = true,
   });
 
   String? _defaultValidator(String? value) {
@@ -38,10 +40,13 @@ class TextFormFieldCustom extends StatelessWidget {
         Text(labelText, style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 10),
         TextFormField(
+          enabled: enabled,
           obscureText: obscureText ?? false,
           key: valueKey != null ? ValueKey(valueKey) : null,
           controller: controller,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: enabled ? Colors.black : AppTheme.grey,
+          ),
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: Theme.of(

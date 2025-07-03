@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
-import 'package:gerobakgo_with_api/ui/core/view_models/auth_viewmodel.dart';
+import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
 
 class HomeViewmodel with ChangeNotifier {
   final MerchantRepository _merchantRepository;

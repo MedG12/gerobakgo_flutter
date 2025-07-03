@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/ui/core/themes/app_theme.dart';
-import 'package:gerobakgo_with_api/ui/core/ui/textFormField.dart';
-import 'package:gerobakgo_with_api/ui/core/view_models/auth_viewmodel.dart';
+import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/widgets/textFormField.dart';
+import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -220,11 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           if (response) {
                             setState(() => _isLoading = true);
                             // Navigate to home or next page
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/profile',
-                              (Route<dynamic> route) => false,
-                            );
+                            context.go('/home');
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -348,7 +345,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () => context.go('/login'),
                     child: Text(
                       'Sign In',
                       style: AppTheme.textTheme.bodyMedium?.copyWith(

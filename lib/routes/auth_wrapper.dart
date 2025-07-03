@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gerobakgo_with_api/ui/core/view_models/auth_viewmodel.dart';
+import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 

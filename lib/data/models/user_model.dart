@@ -3,7 +3,7 @@ class User {
   final int id;
   final String name;
   final String email;
-  final String? photoUrl;
+  String? photoUrl;
   final String role;
   final String? token;
 

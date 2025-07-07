@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:go_router/go_router.dart';
 
 Widget merchantCard(BuildContext context, Merchant merchant) {
   return GestureDetector(
     onTap: () async {
-      // Navigate to detail screen
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => DetailScreen(merchant: merchant)),
-      // );
+      context.push('/home/detail/${merchant.id}');
     },
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

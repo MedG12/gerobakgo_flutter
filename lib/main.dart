@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
 import 'package:gerobakgo_with_api/data/services/APIService.dart';
+import 'package:gerobakgo_with_api/features/maps/view_model/map_viewmodel.dart';
+import 'package:gerobakgo_with_api/features/user/detail/view_model/detail_viewmodel.dart';
 import 'package:gerobakgo_with_api/features/user/profile/view_model/profile_viewmodel.dart';
 import 'package:gerobakgo_with_api/routes/app_router.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
@@ -11,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'data/repositories/auth_repository.dart';
 import 'core/view_models/auth_viewmodel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gerobakgo_with_api/data/services/PusherService.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
@@ -24,27 +27,45 @@ void main() async {
     MultiProvider(
       providers: [
         Provider(create: (_) => APIService()),
+        Provider(create: (_) => PusherService()),
         ChangeNotifierProvider(
           create:
-              (context) => AuthViewModel(
+              (context) => AuthViewmodel(
                 AuthRepository(
                   context.read<APIService>(),
                   const FlutterSecureStorage(),
                 ),
               ),
         ),
-
-        // Provider<MerchantRepository>(
-        //   create: (context) => MerchantRepository(context.read<APIService>()),
-        // ),
         ChangeNotifierProvider(
           create:
               (context) => HomeViewmodel(
-                MerchantRepository(context.read<APIService>()),
-                context.read<AuthViewModel>(),
+                MerchantRepository(
+                  context.read<APIService>(),
+                  context.read<PusherService>(),
+                ),
+                context.read<AuthViewmodel>(),
               ),
         ),
         ChangeNotifierProvider(create: (context) => ProfileViewmodel()),
+        ChangeNotifierProvider(
+          create:
+              (context) => DetailViewmodel(
+                MerchantRepository(
+                  context.read<APIService>(),
+                  context.read<PusherService>(),
+                ),
+              ),
+        ),
+        ChangeNotifierProvider(
+          create:
+              (context) => MapViewmodel(
+                MerchantRepository(
+                  context.read<APIService>(),
+                  context.read<PusherService>(),
+                ),
+              ),
+        ),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

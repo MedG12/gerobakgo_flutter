@@ -136,7 +136,6 @@ class _HomePageState extends State<HomePage> {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final merchant = merchants[index];
-                    debugPrint('Merchant: ${merchant.photoUrl}');
                     return merchantCard(context, merchant);
                   }, childCount: merchants.length),
                 );

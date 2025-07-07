@@ -5,12 +5,18 @@ import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
 
 class HomeViewmodel with ChangeNotifier {
   final MerchantRepository _merchantRepository;
-  final AuthViewModel _authViewModel;
+  final AuthViewmodel _authViewModel;
   List<Merchant> merchants = [];
 
   HomeViewmodel(this._merchantRepository, this._authViewModel) {
-    // Initialize or fetch data here if needed
     fetchMerchants();
+    // _merchantRepository.getLocationStream().listen((location) {
+    //   merchants.forEach((merchant) {
+    //     if (location.id == merchant.id) {
+    //       merchant.location = location;
+    //     }
+    //   });
+    // });
   }
   // Example method to fetch merchants
   Future<List<Merchant>> fetchMerchants() async {
@@ -20,20 +26,17 @@ class HomeViewmodel with ChangeNotifier {
         merchants = await _merchantRepository.getMerchants(token);
         return merchants;
       } else {
-        // Handle case where token is not available
-        print('Token is not available');
-        return [];
+        throw Exception('Token is not available');
       }
     } catch (e) {
+      print("Error fetching merchants in home view $e");
       // Handle error
-      print('Error fetching merchants: $e');
       return [];
     } finally {
       notifyListeners(); // Notify listeners after fetching merchants
     }
   }
 
-  // Example property
   String currentCity = 'Depok';
 
   // Example method to update the current city

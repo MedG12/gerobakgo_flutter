@@ -1,17 +1,16 @@
 class Menu {
   final int id;
-  final String photoUrl;
+  final String? photoUrl;
   final String name;
   final String description;
   final String price;
 
   Menu({
     required this.id,
-    required this.photoUrl,
+    this.photoUrl,
     required this.name,
     required this.description,
     required this.price,
-
   });
 
   // Factory constructor to create a Menu instance from JSON
@@ -21,7 +20,7 @@ class Menu {
       photoUrl: json['photoUrl'],
       name: json['name'],
       description: json['description'],
-      price: json['price'] ?? '0', // Default price if not provided
+      price: json['price'],
     );
   }
 
@@ -43,5 +42,9 @@ class Menu {
       description: map['data']['description'],
       price: map['data']['price'] ?? '0', // Default price if not provided
     );
+  }
+
+  static List<Menu> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => Menu.fromJson(json)).toList();
   }
 }

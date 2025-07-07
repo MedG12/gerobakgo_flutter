@@ -26,18 +26,19 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+      final authViewModel = Provider.of<AuthViewmodel>(context, listen: false);
       final profileViewModel = Provider.of<ProfileViewmodel>(
         context,
         listen: false,
       );
+      authViewModel.init();
       final user = authViewModel.currentUser;
       if (user != null) {
         nameController.text = user.name;
         emailController.text = user.email;
         profileViewModel.setOriginalName(user.name);
       }
-
+      print(user!.token);
       nameController.addListener(() {
         profileViewModel.currentName = nameController.text;
       });
@@ -53,17 +54,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context);
+    final authViewModel = Provider.of<AuthViewmodel>(context);
     final user = authViewModel.currentUser;
     final profileViewModel = Provider.of<ProfileViewmodel>(context);
-
-    print("isinya adalah ${profileViewModel.selectedImage}");
-    print(
-      profileViewModel.isNameChanged ||
-          authViewModel.isLoading ||
-          profileViewModel.selectedImage != null,
-    );
-
     if (user == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.go('/');
@@ -169,10 +162,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                     },
                     child: Column(
+                      spacing: 20,
                       children: [
                         TextFormFieldCustom(
                           controller: nameController,
-                          labelText: 'Name',
+                          labelText: 'Nama',
                           hintText: 'Masukkan nama anda',
                         ),
                         TextFormFieldCustom(
@@ -211,6 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               authViewModel.isLoading ||
                               profileViewModel.selectedImage != null
                           ? () async {
+                            if (!_formKey.currentState!.validate()) return;
                             final response = await authViewModel.updateUser(
                               profileViewModel.currentName,
                               emailController.text,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/widgets/navItem.dart';
+import 'package:gerobakgo_with_api/core/widgets/navItemProfile.dart';
 import 'package:go_router/go_router.dart';
 
 class MainShell extends StatefulWidget {
@@ -25,14 +28,45 @@ class _MainShellState extends State<MainShell> {
             case 0:
               context.go('/home');
               break;
+
             case 1:
+              context.go('/maps');
+              break;
+
+            case 2:
+              context.go('/chats');
+              break;
+
+            case 3:
               context.go('/profile');
               break;
           }
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppTheme.primaryDark,
+        unselectedItemColor: AppTheme.grey,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: '', // Tambahkan label kosong
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map_outlined),
+            activeIcon: Icon(Icons.map),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: navItemProfile(context, _currentIndex == 3),
+            label: '',
+          ),
         ],
       ),
     );

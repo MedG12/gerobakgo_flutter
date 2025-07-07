@@ -14,7 +14,7 @@ class AppRouter {
       initialLocation: '/splash',
       routes: $appRoutes,
       redirect: (BuildContext context, GoRouterState state) async {
-        final authViewModel = context.read<AuthViewModel>();
+        final authViewModel = context.read<AuthViewmodel>();
         await authViewModel.init();
         final isLoggedIn = authViewModel.token != null;
         final isSplash = state.matchedLocation == '/splash';

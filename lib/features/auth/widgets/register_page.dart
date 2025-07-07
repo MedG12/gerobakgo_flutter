@@ -40,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context);
+    final authViewModel = Provider.of<AuthViewmodel>(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(

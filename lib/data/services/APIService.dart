@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gerobakgo_with_api/data/models/menu_model.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/data/models/user_model.dart';
 import 'package:dio/dio.dart';
 
 class APIService {
-  static const String _baseUrl = 'http://192.168.18.60:8000/api';
+  static final String _baseUrl = dotenv.env['API_BASE_URL'] ?? '';
   final dio = Dio(
     BaseOptions(
       baseUrl: _baseUrl,
@@ -46,7 +48,7 @@ class APIService {
   Future<User> login(String email, String password) async {
     try {
       final response = await dio.post(
-        '/user/login',
+        'user/login',
         data: {'email': email, 'password': password},
       );
       switch (response.statusCode) {
@@ -55,7 +57,6 @@ class APIService {
           if (response.data['success'] == false) {
             throw Exception(response.data['message'] ?? 'Unauthorized');
           }
-          print('Login response: ${response.data}');
           return User.fromMap(response.data);
         case 401:
           throw Exception('Unauthorized');
@@ -93,7 +94,7 @@ class APIService {
 
   // Logout
   Future<void> logout(String token) async {
-    _requestWithToken(method: 'POST', endpoint: '/user/logout', token: token);
+    _requestWithToken(method: 'POST', endpoint: 'user/logout', token: token);
   }
 
   Future<String> uploadImage(File imagePath, int id, String token) async {
@@ -102,7 +103,7 @@ class APIService {
     });
     try {
       final response = await dio.post(
-        '/user/upload/$id',
+        'user/upload/$id',
         options: Options(
           headers: {
             'Accept': 'application/json',
@@ -137,7 +138,7 @@ class APIService {
   ) async {
     try {
       final response = await dio.post(
-        '/user/register',
+        'user/register',
         data: {
           'name': name,
           'email': email,
@@ -172,7 +173,7 @@ class APIService {
     final response = await _requestWithToken(
       method: 'GET',
       token: token,
-      endpoint: '/merchant',
+      endpoint: 'merchant',
     );
     if (response.statusCode == 200) {
       final data = response.data['data'] as List;
@@ -182,16 +183,31 @@ class APIService {
     }
   }
 
-  Future<Merchant> getMerchantById(String id, String token) async {
-    final response = await _requestWithToken(
-      method: 'GET',
-      token: token,
-      endpoint: '/merchant/$id',
-    );
-    if (response.statusCode == 200) {
-      return Merchant.fromJson(response.data['data']);
-    } else {
-      throw Exception('Failed to load merchant');
+  Future<Merchant> getMerchantById(int id, String token) async {
+    try {
+      final response = await _requestWithToken(
+        method: 'GET',
+        token: token,
+        endpoint: 'merchant/detail/$id',
+      );
+      if (response.statusCode == 200) {
+        return Merchant.fromJson(response.data['data']);
+      } else {
+        throw Exception('Failed to load merchant');
+      }
+    } on DioException catch (e) {
+      // Tangani error dari Dio
+      if (e.response != null) {
+        final errorData = e.response?.data;
+        if (errorData is Map<String, dynamic> &&
+            errorData.containsKey('message')) {
+          throw AuthException(errorData['message']);
+        }
+        throw Exception(e.message ?? 'An error occurred during merchant load');
+      }
+      throw Exception(e.message ?? 'An error occurred during merchant load');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 
@@ -200,7 +216,7 @@ class APIService {
       final response = await _requestWithToken(
         method: 'PUT',
         token: token,
-        endpoint: '/user/update/${id}',
+        endpoint: 'user/update/${id}',
         body: {'name': name},
       );
       switch (response.statusCode) {

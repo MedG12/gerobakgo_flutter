@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(vsync: this);
     Future.delayed(Duration(seconds: 2), () async {
-      final authViewModel = context.read<AuthViewModel>();
+      final authViewModel = context.read<AuthViewmodel>();
       await authViewModel.init();
       final isLoggedIn = authViewModel.token != null;
       if (!mounted) return;

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_model.dart';
 
-class AuthViewModel with ChangeNotifier {
+class AuthViewmodel with ChangeNotifier {
   final AuthRepository _authRepo;
 
   User? _currentUser;
@@ -14,7 +14,7 @@ class AuthViewModel with ChangeNotifier {
   String? _token;
   bool _isInitialized = false;
 
-  AuthViewModel(this._authRepo) {
+  AuthViewmodel(this._authRepo) {
     init();
   }
 
@@ -30,7 +30,7 @@ class AuthViewModel with ChangeNotifier {
       return true; // Tambahkan return value
     } catch (e) {
       _errorMessage = e.toString();
-      _isInitialized = true; // Tetap set initialized meskipun error
+      _isInitialized = false; // Tetap set initialized meskipun error
       notifyListeners();
       return false;
     }

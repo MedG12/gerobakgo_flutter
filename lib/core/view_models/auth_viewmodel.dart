@@ -18,6 +18,11 @@ class AuthViewmodel with ChangeNotifier {
     init();
   }
 
+  set setLoading(bool status) {
+    _isLoading = status;
+    notifyListeners();
+  }
+
   Future<bool> init() async {
     try {
       final token = await _authRepo.getToken();

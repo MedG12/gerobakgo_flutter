@@ -111,7 +111,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               "${dotenv.env['STORAGE_URL']}${user.photoUrl}",
                             ),
                     child:
-                        user.photoUrl == null
+                        (user.photoUrl == null &&
+                                profileViewModel.selectedImage == null)
                             ? Text(
                               UserUtils.getInitials(user.name),
                               style: const TextStyle(
@@ -206,6 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               profileViewModel.selectedImage != null
                           ? () async {
                             if (!_formKey.currentState!.validate()) return;
+                            authViewModel.setLoading = true;
                             final response = await authViewModel.updateUser(
                               profileViewModel.currentName,
                               emailController.text,
@@ -235,6 +237,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               );
                             }
+                            profileViewModel.reset();
+                            authViewModel.setLoading = false;
                           }
                           : null,
                   icon:

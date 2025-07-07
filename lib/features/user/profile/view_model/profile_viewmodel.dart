@@ -11,6 +11,13 @@ class ProfileViewmodel with ChangeNotifier {
   String get currentName => _currentName;
   String get originalName => _originalName;
 
+  void reset() {
+    _currentName =  _originalName;
+    _selectedImage = null;
+    _isUploading = false;
+    notifyListeners();
+  }
+
   set currentName(String name) {
     _currentName = name;
     notifyListeners();

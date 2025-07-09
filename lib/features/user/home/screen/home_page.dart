@@ -16,6 +16,19 @@ class _HomePageState extends State<HomePage> {
   final SearchController _searchController = SearchController();
 
   @override
+  void initState() {
+    super.initState();
+    final HomeViewmodel _homeViewModel = Provider.of<HomeViewmodel>(
+      context,
+      listen: false,
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _homeViewModel.fetchMerchants();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final HomeViewmodel _homeViewModel = Provider.of<HomeViewmodel>(
       context,
@@ -54,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             "What's on",
                             style: TextStyle(
-                              color: AppTheme.grey,
+                              color: AppTheme.white,
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                             ),
@@ -70,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                                 child: Text(
                                   'Depok',
                                   style: TextStyle(
-                                    color: AppTheme.grey,
+                                    color: AppTheme.white,
                                     fontSize: 30,
                                     fontWeight: FontWeight.bold,
                                   ),

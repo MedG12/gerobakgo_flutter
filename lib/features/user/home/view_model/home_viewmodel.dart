@@ -9,7 +9,6 @@ class HomeViewmodel with ChangeNotifier {
   List<Merchant> merchants = [];
 
   HomeViewmodel(this._merchantRepository, this._authViewModel) {
-    fetchMerchants();
     // _merchantRepository.getLocationStream().listen((location) {
     //   merchants.forEach((merchant) {
     //     if (location.id == merchant.id) {

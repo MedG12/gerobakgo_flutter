@@ -1,6 +1,7 @@
 // main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gerobakgo_with_api/data/repositories/location_repository.dart';
 import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
 import 'package:gerobakgo_with_api/data/services/APIService.dart';
 import 'package:gerobakgo_with_api/features/maps/view_model/map_viewmodel.dart';
@@ -64,6 +65,7 @@ void main() async {
                   context.read<APIService>(),
                   context.read<PusherService>(),
                 ),
+                LocationRepository(context.read<APIService>()),
               ),
         ),
       ],

@@ -28,21 +28,23 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _initializeMap() async {
-    if (_isInitialized) return;
-
     final authViewModel = Provider.of<AuthViewmodel>(context, listen: false);
     final mapViewModel = Provider.of<MapViewmodel>(context, listen: false);
 
     try {
+      mapViewModel.user = authViewModel.currentUser!;
+      mapViewModel.token = authViewModel.token!;
       await mapViewModel.initializeActiveMerchants(authViewModel.token!);
     } catch (e) {
       // Error sudah di-handle di viewmodel
-      print('Error initializing merchants: $e');
+      debugPrint('Error initializing merchants: $e');
     }
 
-    setState(() {
-      _isInitialized = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
@@ -54,6 +56,17 @@ class _MapPageState extends State<MapPage> {
           _isInitialized
               ? _buildMap(mapViewModel)
               : const Center(child: CircularProgressIndicator()),
+      floatingActionButton: ValueListenableBuilder<LatLng?>(
+        valueListenable: mapViewModel.userLocationNotifier,
+        builder: (context, userLocation, _) {
+          return FloatingActionButton(
+            onPressed: () {
+              mapController.move(userLocation ?? userLatLng, 18);
+            },
+            child: const Icon(Icons.my_location),
+          );
+        },
+      ),
     );
   }
 
@@ -140,56 +153,68 @@ class _MapPageState extends State<MapPage> {
       );
     }
 
-    return FlutterMap(
-      mapController: mapController,
-      options: MapOptions(initialCenter: userLatLng, initialZoom: 18),
-      children: [
-        // Tile layer
-        TileLayer(
-          urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        ),
-        // User marker
-        MarkerLayer(
-          markers: [
-            Marker(
-              rotate: true,
-              width: 80,
-              height: 80,
-              point: userLatLng,
-              child: const Icon(Icons.circle, color: Colors.blue, size: 20),
-            ),
-          ],
-        ),
-        // Merchant markers dengan ValueListenableBuilder
-        ValueListenableBuilder<List<Merchant>>(
-          valueListenable: mapViewModel.markersNotifier,
-          builder: (context, merchants, _) {
-            final markers =
-                merchants
-                    .map(
-                      (merchant) => Marker(
-                        rotate: true,
-                        point: LatLng(
-                          merchant.location!.latitude,
-                          merchant.location!.longitude,
-                        ),
-                        child: GestureDetector(
-                          onTap: () => {showMerchantModal(context, merchant)},
-                          child: merchantMarker(merchant),
-                        ),
-                      ),
-                    )
-                    .toList();
-            return MarkerLayer(markers: markers);
-          },
-        ),
-        // Loading indicator overlay
-        if (mapViewModel.isLoading)
-          Container(
-            color: Colors.black26,
-            child: const Center(child: CircularProgressIndicator()),
+    return ValueListenableBuilder<LatLng?>(
+      valueListenable: mapViewModel.userLocationNotifier,
+      builder: (context, userLocation, _) {
+        return FlutterMap(
+          mapController: mapController,
+          options: MapOptions(
+            initialCenter: userLocation ?? userLatLng,
+            initialZoom: 18,
           ),
-      ],
+          children: [
+            // Tile layer
+            TileLayer(
+              urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  rotate: true,
+                  width: 80,
+                  height: 80,
+                  point:
+                      userLocation ??
+                      userLatLng, // Fallback ke userLatLng jika null
+                  child: const Icon(Icons.circle, color: Colors.blue, size: 20),
+                ),
+              ],
+            ),
+            // User marker
+
+            // Merchant markers dengan ValueListenableBuilder
+            ValueListenableBuilder<List<Merchant>>(
+              valueListenable: mapViewModel.markersNotifier,
+              builder: (context, merchants, _) {
+                final markers =
+                    merchants
+                        .map(
+                          (merchant) => Marker(
+                            rotate: true,
+                            point: LatLng(
+                              merchant.location!.latitude!,
+                              merchant.location!.longitude!,
+                            ),
+                            child: GestureDetector(
+                              onTap:
+                                  () => {showMerchantModal(context, merchant)},
+                              child: merchantMarker(merchant),
+                            ),
+                          ),
+                        )
+                        .toList();
+                return MarkerLayer(markers: markers);
+              },
+            ),
+            // Loading indicator overlay
+            if (mapViewModel.isLoading)
+              Container(
+                color: Colors.black26,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          ],
+        );
+      },
     );
   }
 }

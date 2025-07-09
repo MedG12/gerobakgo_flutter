@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gerobakgo_with_api/data/models/location_model.dart';
 import 'package:gerobakgo_with_api/data/models/menu_model.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/data/models/user_model.dart';
@@ -239,6 +240,19 @@ class APIService {
       throw Exception(e.message ?? 'An error occurred during update user');
     } catch (e) {
       throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  Future<void> updateLocation(String token, Location location) async {
+    try {
+      await _requestWithToken(
+        method: 'POST',
+        endpoint: 'merchant/location/update/${location.id}',
+        token: token,
+        body: location.toJson(),
+      );
+    } catch (e) {
+      print('error updating user location $e');
     }
   }
 }

@@ -15,6 +15,7 @@ class MerchantRepository {
   }
 
   Future<List<Merchant>> getMerchants(String token) async {
+    print('hit get merchants');
     return await _apiService.getMerchants(token);
   }
 

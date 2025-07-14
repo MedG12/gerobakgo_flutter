@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class ProfileViewmodel with ChangeNotifier {
+class ProfileuserViewmodel with ChangeNotifier {
   String _originalName = '';
   String _currentName = '';
   File? _selectedImage;

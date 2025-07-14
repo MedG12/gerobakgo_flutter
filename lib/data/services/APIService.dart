@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gerobakgo_with_api/core/exceptions/app_exceptions.dart';
 import 'package:gerobakgo_with_api/data/models/location_model.dart';
 import 'package:gerobakgo_with_api/data/models/menu_model.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
@@ -96,38 +97,6 @@ class APIService {
   // Logout
   Future<void> logout(String token) async {
     _requestWithToken(method: 'POST', endpoint: 'user/logout', token: token);
-  }
-
-  Future<String> uploadImage(File imagePath, int id, String token) async {
-    final formData = FormData.fromMap({
-      'image': await MultipartFile.fromFile(imagePath.path),
-    });
-    try {
-      final response = await dio.post(
-        'user/upload/$id',
-        options: Options(
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-            'Authorization': 'Bearer $token',
-          },
-        ),
-        data: formData,
-      );
-      return response.data['data'];
-    } on DioException catch (e) {
-      // Tangani error dari Dio
-      if (e.response != null) {
-        final errorData = e.response?.data;
-        if (errorData is Map<String, dynamic> &&
-            errorData.containsKey('message')) {
-          throw AuthException(errorData['message']);
-        }
-      }
-      throw Exception(e.message ?? 'An error occurred during image upload');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
   }
 
   // Register
@@ -243,6 +212,33 @@ class APIService {
     }
   }
 
+  Future<String> getCityNameFromCoordinates(double lat, double lon) async {
+    try {
+      final response = await dio.get(
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=10&addressdetails=1',
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        String city =
+            data['address']['city'] ??
+            data['address']['town'] ??
+            data['address']['village'] ??
+            data['address']['municipality'] ??
+            '';
+
+        // Clean non-ASCII characters
+        city = city.replaceAll(RegExp(r'[^\x00-\x7F]+'), '');
+        return city.trim();
+      } else {
+        throw Exception('Failed to fetch city name: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching city name: $e');
+      throw Exception('Failed to get city name: $e');
+    }
+  }
+
   Future<void> updateLocation(String token, Location location) async {
     try {
       await _requestWithToken(
@@ -255,12 +251,110 @@ class APIService {
       print('error updating user location $e');
     }
   }
-}
 
-class AuthException implements Exception {
-  final String message;
-  AuthException(this.message);
+  Future<String> uploadUserImage(File imagePath, int id, String token) async {
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(imagePath.path),
+    });
+    try {
+      final response = await dio.post(
+        'user/upload/$id',
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: formData,
+      );
+      return response.data['data'];
+    } on DioException catch (e) {
+      // Tangani error dari Dio
+      if (e.response != null) {
+        final errorData = e.response?.data;
+        if (errorData is Map<String, dynamic> &&
+            errorData.containsKey('message')) {
+          throw AuthException(errorData['message']);
+        }
+      }
+      throw Exception(e.message ?? 'An error occurred during image upload');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
 
-  @override
-  String toString() => message;
+  Future<String> uploadMenuImage(File imagePath, int? id, String token) async {
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(imagePath.path),
+    });
+    try {
+      final response = await dio.post(
+        id != null ? 'menu/upload/$id' : 'menu/upload',
+        options: Options(
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: formData,
+      );
+      return response.data['data'];
+    } on DioException catch (e) {
+      // Tangani error dari Dio
+      if (e.response != null) {
+        final errorData = e.response?.data;
+        if (errorData is Map<String, dynamic> &&
+            errorData.containsKey('message')) {
+          throw AuthException(errorData['message']);
+        }
+      }
+      throw Exception(e.message ?? 'An error occurred during image upload');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  Future<Menu> addMenu(Menu menu, int id, String token) async {
+    try {
+      final response = await _requestWithToken(
+        method: 'POST',
+        endpoint: 'menu/$id',
+        body: menu.toJson(),
+        token: token,
+      );
+      switch (response.statusCode) {
+        case 200:
+          return Menu.fromJson(response.data);
+        case 422:
+          throw Exception(response.data['message']);
+        case 401:
+          throw Exception("Authorization errro");
+        default:
+          throw Exception('Failed to add menu');
+      }
+    } catch (e) {
+      throw Exception('Failed to add menu : $e');
+    }
+  }
+
+  Future<Menu> updateMenu(Menu menu, String token) async {
+    final response = await _requestWithToken(
+      method: 'PUT',
+      endpoint: 'menu/${menu.id}/edit',
+      body: menu.toJson(),
+      token: token,
+    );
+    switch (response.statusCode) {
+      case 200:
+        return Menu.fromJson(response.data["data"]);
+      case 422:
+        throw Exception(response.data['message']);
+      case 401:
+        throw Exception("Authorization errro");
+      default:
+        throw Exception('Failed to add menu');
+    }
+  }
 }

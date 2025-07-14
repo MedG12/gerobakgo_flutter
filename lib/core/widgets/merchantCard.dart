@@ -4,10 +4,10 @@ import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 
-Widget merchantCard(BuildContext context, Merchant merchant) {
+Widget merchantCard(BuildContext context, Merchant merchant, bool isHomePage) {
   return GestureDetector(
     onTap: () async {
-      context.push('/home/detail/${merchant.id}');
+      if (isHomePage) context.push('/home/detail/${merchant.userId}');
     },
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -59,67 +59,42 @@ Widget merchantCard(BuildContext context, Merchant merchant) {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  merchant.description,
+                  merchant.description ?? "",
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      merchant.openHour!,
-                      style: AppTheme.textTheme.labelSmall?.copyWith(
-                        color: AppTheme.success,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      child: Text('-', style: AppTheme.textTheme.labelMedium),
-                    ),
-                    Text(
-                      merchant.closeHour!,
-                      style: AppTheme.textTheme.labelSmall?.copyWith(
-                        color: AppTheme.success,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+                merchant.openHour != null
+                    ? Row(
+                      children: [
+                        Text(
+                          merchant.openHour!,
+                          style: AppTheme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.success,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          child: Text(
+                            '-',
+                            style: AppTheme.textTheme.labelMedium,
+                          ),
+                        ),
+                        Text(
+                          merchant.closeHour!,
+                          style: AppTheme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.success,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    )
+                    : Container(),
               ],
             ),
           ),
-
-          // Distance and arrow
-          // Column(
-          //   crossAxisAlignment: CrossAxisAlignment.end,
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   children: [
-          //     merchant.distance == 'N/A'
-          //         ? Text('offline', style: TextStyle(color: Colors.grey))
-          //         : Row(
-          //           mainAxisSize: MainAxisSize.min,
-          //           children: [
-          //             const Icon(
-          //               Icons.location_on,
-          //               color: Colors.orange,
-          //               size: 16,
-          //             ),
-          //             Text(
-          //               merchant.distance!,
-          //               style: const TextStyle(
-          //                 fontSize: 14,
-          //                 fontWeight: FontWeight.w500,
-          //                 color: Colors.orange,
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //     const SizedBox(height: 8),
-          //     const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-          //   ],
-          // ),
         ],
       ),
     ),

@@ -22,8 +22,17 @@ class _SplashScreenState extends State<SplashScreen>
       final authViewModel = context.read<AuthViewmodel>();
       await authViewModel.init();
       final isLoggedIn = authViewModel.token != null;
+      final isMerchant = authViewModel.currentUser?.role == "merchant";
       if (!mounted) return;
-      context.go(isLoggedIn ? '/home' : '/login');
+      if (isLoggedIn) {
+        if (isMerchant) {
+          context.go('/dashboard');
+        } else {
+          context.go('/home');
+        }
+      } else {
+        context.go('/login');
+      }
     });
   }
 

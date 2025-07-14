@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
 import 'package:gerobakgo_with_api/core/widgets/merchantCard.dart';
 import 'package:gerobakgo_with_api/features/user/home/view_model/home_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -14,34 +15,45 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final SearchController _searchController = SearchController();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    final HomeViewmodel _homeViewModel = Provider.of<HomeViewmodel>(
-      context,
-      listen: false,
-    );
+    _initializeData();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _homeViewModel.fetchMerchants();
+  void _initializeData() async {
+    // Pastikan ini dijalankan setelah build selesai
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!_isInitialized) {
+        final HomeViewmodel homeViewmodel = Provider.of<HomeViewmodel>(
+          context,
+          listen: false,
+        );
+        final AuthViewmodel authViewmodel = Provider.of<AuthViewmodel>(
+          context,
+          listen: false,
+        );
+        homeViewmodel.token = authViewmodel.token!;
+        homeViewmodel.fetchLocation();
+        await homeViewmodel.fetchMerchants();
+
+        _isInitialized = true;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final HomeViewmodel _homeViewModel = Provider.of<HomeViewmodel>(
-      context,
-      listen: false,
-    );
-
+    final HomeViewmodel homeViewmodel = Provider.of<HomeViewmodel>(context);
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
               automaticallyImplyLeading: false,
-              expandedHeight: 250, // Tinggi gambar
+              expandedHeight: 250,
               backgroundColor: Colors.transparent,
               floating: false,
               pinned: true,
@@ -61,38 +73,41 @@ class _HomePageState extends State<HomePage> {
                       bottom: 20,
                       left: 20,
                       right: 10,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "What's on",
-                            style: TextStyle(
-                              color: AppTheme.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on_sharp,
-                                color: Colors.redAccent,
-                                size: 30,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  'Depok',
-                                  style: TextStyle(
-                                    color: AppTheme.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
+                      child:
+                          homeViewmodel.city != null
+                              ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "What's on",
+                                    style: TextStyle(
+                                      color: AppTheme.white,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.location_on_sharp,
+                                        color: Colors.redAccent,
+                                        size: 30,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                          homeViewmodel.city ?? '',
+                                          style: TextStyle(
+                                            color: AppTheme.white,
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                              : Text(""),
                     ),
                   ],
                 ),
@@ -110,7 +125,6 @@ class _HomePageState extends State<HomePage> {
                       icon: const Icon(Icons.search),
                       tooltip: 'Search',
                       onPressed: () {
-                        // Optional jika ingin trigger search manual
                         FocusScope.of(context).unfocus();
                         setState(() {});
                       },
@@ -119,26 +133,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            FutureBuilder(
-              future:
-                  _homeViewModel.merchants.isNotEmpty
-                      ? Future.value(_homeViewModel.merchants)
-                      : _homeViewModel.fetchMerchants(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  return SliverFillRemaining(
-                    child: Center(child: Text('Error: ${snapshot.error}')),
-                  );
-                }
-
-                final merchants = _homeViewModel.merchants;
-                if (merchants.isEmpty) {
+            Consumer<HomeViewmodel>(
+              builder: (context, homeViewmodel, child) {
+                if (homeViewmodel.merchants.isEmpty && _isInitialized) {
                   return const SliverFillRemaining(
                     child: Center(
                       child: Text('Tidak ada merchant yang cocok.'),
@@ -146,116 +143,20 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
 
+                if (homeViewmodel.merchants.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
                 return SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
-                    final merchant = merchants[index];
-                    return merchantCard(context, merchant);
-                  }, childCount: merchants.length),
+                    final merchant = homeViewmodel.merchants[index];
+                    return merchantCard(context, merchant, true);
+                  }, childCount: homeViewmodel.merchants.length),
                 );
               },
             ),
-
-            // StreamBuilder<List<MerchantModel>>(
-            //   stream: _merchantService.getMerchants(),
-            //   builder: (context, snapshot) {
-            //     if (snapshot.connectionState == ConnectionState.waiting) {
-            //       return const SliverFillRemaining(
-            //         child: Center(child: CircularProgressIndicator()),
-            //       );
-            //     }
-
-            //     if (snapshot.hasError) {
-            //       return SliverFillRemaining(
-            //         child: Center(child: Text('Error: ${snapshot.error}')),
-            //       );
-            //     }
-
-            //     final merchants = snapshot.data ?? [];
-            //     final filteredMerchants = _filterMerchants(merchants);
-
-            //     if (filteredMerchants.isEmpty) {
-            //       return const SliverFillRemaining(
-            //         child: Center(
-            //           child: Text('Tidak ada merchant yang cocok.'),
-            //         ),
-            //       );
-            //     }
-
-            //     return StreamBuilder<Map<String, LatLng>>(
-            //       stream: locationService.getActiveLocations(),
-            //       builder: (context, snapshot) {
-            //         final activeMerchants = snapshot.data ?? {};
-            //         return FutureBuilder<Position>(
-            //           future: userLocation,
-            //           builder: (context, userLocationSnapshot) {
-            //             if (userLocationSnapshot.connectionState !=
-            //                 ConnectionState.done) {
-            //               return const SliverFillRemaining(
-            //                 child: Center(child: CircularProgressIndicator()),
-            //               );
-            //             }
-
-            //             final userPos = userLocationSnapshot.data;
-
-            //             return SliverFillRemaining(
-            //               child: ClipRRect(
-            //                 borderRadius: const BorderRadius.vertical(
-            //                   top: Radius.circular(20),
-            //                 ),
-            //                 child: Container(
-            //                   color: Colors.white,
-            //                   child: ListView.builder(
-            //                     physics: const NeverScrollableScrollPhysics(),
-            //                     padding: const EdgeInsets.symmetric(
-            //                       vertical: 16,
-            //                     ),
-            //                     itemCount: filteredMerchants.length,
-            //                     itemBuilder: (context, index) {
-            //                       final merchant = filteredMerchants[index];
-            //                       String distanceText = 'N/A';
-
-            //                       if (activeMerchants.containsKey(
-            //                             merchant.uid,
-            //                           ) &&
-            //                           userPos != null) {
-            //                         final location =
-            //                             activeMerchants[merchant.uid];
-            //                         if (location != null) {
-            //                           final distance =
-            //                               Geolocator.distanceBetween(
-            //                                 userPos.latitude,
-            //                                 userPos.longitude,
-            //                                 location.latitude,
-            //                                 location.longitude,
-            //                               ) /
-            //                               1000;
-            //                           distanceText =
-            //                               '${distance.toStringAsFixed(1)} km';
-            //                         }
-            //                       }
-            //                       return sellerCard(
-            //                         context,
-            //                         Merchant(
-            //                           id: merchant.uid,
-            //                           name: merchant.name,
-            //                           description: merchant.description,
-            //                           imagePath: merchant.photoUrl,
-            //                           distance: distanceText,
-            //                           openHours: merchant.openHours,
-            //                           location: activeMerchants[merchant.uid],
-            //                         ),
-            //                       );
-            //                     },
-            //                   ),
-            //                 ),
-            //               ),
-            //             );
-            //           },
-            //         );
-            //       },
-            //     );
-            //   },
-            // ),
           ],
         ),
       ),

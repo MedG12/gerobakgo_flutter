@@ -24,6 +24,7 @@ class AuthViewmodel with ChangeNotifier {
   }
 
   Future<bool> init() async {
+    if (_isInitialized) return true;
     try {
       final token = await _authRepo.getToken();
       if (token != null) {
@@ -35,7 +36,7 @@ class AuthViewmodel with ChangeNotifier {
       return true; // Tambahkan return value
     } catch (e) {
       _errorMessage = e.toString();
-      _isInitialized = false; // Tetap set initialized meskipun error
+      _isInitialized = false;
       notifyListeners();
       return false;
     }

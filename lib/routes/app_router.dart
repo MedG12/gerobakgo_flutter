@@ -1,6 +1,5 @@
 import 'package:gerobakgo_with_api/routes/routes.dart';
 import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
-import 'package:gerobakgo_with_api/features/splash/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +14,11 @@ class AppRouter {
       routes: $appRoutes,
       redirect: (BuildContext context, GoRouterState state) async {
         final authViewModel = context.read<AuthViewmodel>();
-        await authViewModel.init();
+        if (!authViewModel.isInitialized) {
+          await authViewModel.init();
+        }
+
+        final isMerchant = authViewModel.currentUser?.role == "merchant";
         final isLoggedIn = authViewModel.token != null;
         final isSplash = state.matchedLocation == '/splash';
         final isAuthRoute =
@@ -27,7 +30,11 @@ class AppRouter {
         }
 
         if (isLoggedIn && isAuthRoute && !isSplash) {
-          return '/home';
+          if (isMerchant) {
+            return '/dashboard';
+          } else {
+            return '/home';
+          }
         }
 
         return null;

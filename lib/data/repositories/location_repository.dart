@@ -34,6 +34,7 @@ class LocationRepository {
   }
 
   Future<LatLng> getCurrentPosition() async {
+    initialize();
     final Position pos = await Geolocator.getCurrentPosition();
     return LatLng(pos.latitude, pos.longitude);
   }
@@ -49,5 +50,9 @@ class LocationRepository {
 
   Future<void> updateLocation(String token, Location location) async {
     await _apiService.updateLocation(token, location);
+  }
+
+  Future<String> getCityNameFromOSM(double lat, double lon) async {
+    return _apiService.getCityNameFromCoordinates(lat, lon);
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:gerobakgo_with_api/data/models/location_model.dart';
+import 'package:gerobakgo_with_api/data/models/menu_model.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
 import 'package:gerobakgo_with_api/data/services/APIService.dart';
 import 'package:gerobakgo_with_api/data/services/PusherService.dart';
@@ -21,5 +24,17 @@ class MerchantRepository {
 
   Future<Merchant> getMerchantById(int id, String token) async {
     return await _apiService.getMerchantById(id, token);
+  }
+
+  Future<String> uploadMenuImage(File file, int? id, token) async {
+    return await _apiService.uploadMenuImage(file, id, token);
+  }
+
+  Future<Menu> createMenu(Menu menu, int userId, String token) async {
+    return await _apiService.addMenu(menu, userId, token);
+  }
+
+  Future<Menu> updateMenu(Menu menu, String token) async {
+    return await _apiService.updateMenu(menu, token);
   }
 }

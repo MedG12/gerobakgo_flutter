@@ -51,7 +51,7 @@ class MapViewmodel with ChangeNotifier {
   }
 
   void _setupExpiryTimer() {
-    _expiryTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+    _expiryTimer = Timer.periodic(const Duration(seconds: 60), (_) {
       _removeExpiredMerchants();
     });
   }

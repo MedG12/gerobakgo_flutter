@@ -72,7 +72,7 @@ class AuthRepository {
   }
 
   Future<String> uploadImage(File image, int id, String token) async {
-    return _apiService.uploadImage(image, id, token);
+    return _apiService.uploadUserImage(image, id, token);
   }
 
   Future<User?> getCurrentUser() async {

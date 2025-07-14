@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 import 'package:gerobakgo_with_api/core/widgets/textFormField.dart';
-import 'package:gerobakgo_with_api/features/user/profile/screen/profile_page.dart';
+import 'package:gerobakgo_with_api/features/user/profile/screen/profile_user_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/view_models/auth_viewmodel.dart';
@@ -132,7 +132,12 @@ class _LoginPageState extends State<LoginPage> {
                                 _passwordController.text,
                               );
                               if (response) {
-                                context.go('/home');
+                                if (authViewModel.currentUser!.role ==
+                                    'merchant') {
+                                  context.go('/dashboard');
+                                } else {
+                                  context.go('/home');
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

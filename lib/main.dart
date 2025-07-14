@@ -5,8 +5,11 @@ import 'package:gerobakgo_with_api/data/repositories/location_repository.dart';
 import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
 import 'package:gerobakgo_with_api/data/services/APIService.dart';
 import 'package:gerobakgo_with_api/features/maps/view_model/map_viewmodel.dart';
+import 'package:gerobakgo_with_api/features/merchant/dashboard/view_model/dashboard_viewmodel.dart';
+import 'package:gerobakgo_with_api/features/merchant/profile/screen/profile_merch_page.dart';
+import 'package:gerobakgo_with_api/features/merchant/profile/view_model/profileMerchant_viewmodel.dart';
 import 'package:gerobakgo_with_api/features/user/detail/view_model/detail_viewmodel.dart';
-import 'package:gerobakgo_with_api/features/user/profile/view_model/profile_viewmodel.dart';
+import 'package:gerobakgo_with_api/features/user/profile/view_model/profileUser_viewmodel.dart';
 import 'package:gerobakgo_with_api/routes/app_router.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 import 'package:gerobakgo_with_api/features/user/home/view_model/home_viewmodel.dart';
@@ -45,10 +48,19 @@ void main() async {
                   context.read<APIService>(),
                   context.read<PusherService>(),
                 ),
-                context.read<AuthViewmodel>(),
+                LocationRepository(context.read<APIService>()),
               ),
         ),
-        ChangeNotifierProvider(create: (context) => ProfileViewmodel()),
+        ChangeNotifierProvider(create: (context) => ProfileuserViewmodel()),
+        ChangeNotifierProvider(
+          create:
+              (context) => ProfileMerchViewmodel(
+                MerchantRepository(
+                  context.read<APIService>(),
+                  context.read<PusherService>(),
+                ),
+              ),
+        ),
         ChangeNotifierProvider(
           create:
               (context) => DetailViewmodel(
@@ -61,6 +73,16 @@ void main() async {
         ChangeNotifierProvider(
           create:
               (context) => MapViewmodel(
+                MerchantRepository(
+                  context.read<APIService>(),
+                  context.read<PusherService>(),
+                ),
+                LocationRepository(context.read<APIService>()),
+              ),
+        ),
+        ChangeNotifierProvider(
+          create:
+              (context) => DashboardViewmodel(
                 MerchantRepository(
                   context.read<APIService>(),
                   context.read<PusherService>(),

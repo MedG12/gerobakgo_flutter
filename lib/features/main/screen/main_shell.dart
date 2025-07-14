@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
+import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
 import 'package:gerobakgo_with_api/core/widgets/navItem.dart';
 import 'package:gerobakgo_with_api/core/widgets/navItemProfile.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MainShell extends StatefulWidget {
   final Widget child;
@@ -18,6 +20,8 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final authViewModel = context.read<AuthViewmodel>();
+    final isMerchant = authViewModel.currentUser?.role == "merchant";
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
@@ -26,7 +30,11 @@ class _MainShellState extends State<MainShell> {
           setState(() => _currentIndex = index);
           switch (index) {
             case 0:
-              context.go('/home');
+              if (isMerchant) {
+                context.go('/dashboard');
+              } else {
+                context.go('/home');
+              }
               break;
 
             case 1:
@@ -38,7 +46,11 @@ class _MainShellState extends State<MainShell> {
               break;
 
             case 3:
-              context.go('/profile');
+              if (isMerchant) {
+                context.go('/profile-merchant');
+              } else {
+                context.go('/profile-user');
+              }
               break;
           }
         },

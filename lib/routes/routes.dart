@@ -3,11 +3,13 @@ import 'package:gerobakgo_with_api/features/auth/widgets/login_page.dart';
 import 'package:gerobakgo_with_api/features/auth/widgets/register_page.dart';
 import 'package:gerobakgo_with_api/features/chats/screens/chat_page.dart';
 import 'package:gerobakgo_with_api/features/maps/screens/map_page.dart';
+import 'package:gerobakgo_with_api/features/merchant/dashboard/screen/dashboard_page.dart';
+import 'package:gerobakgo_with_api/features/merchant/profile/screen/profile_merch_page.dart';
 import 'package:gerobakgo_with_api/features/user/detail/screen/detail_page.dart';
-import 'package:gerobakgo_with_api/features/user/main/screen/main_shell.dart';
+import 'package:gerobakgo_with_api/features/main/screen/main_shell.dart';
 import 'package:gerobakgo_with_api/features/splash/screens/splash_screen.dart';
 import 'package:gerobakgo_with_api/features/user/home/screen/home_page.dart';
-import 'package:gerobakgo_with_api/features/user/profile/screen/profile_page.dart';
+import 'package:gerobakgo_with_api/features/user/profile/screen/profile_user_page.dart';
 import 'package:go_router/go_router.dart';
 
 final $appRoutes = [
@@ -48,6 +50,12 @@ final $appRoutes = [
             (context, state) =>
                 NoTransitionPage(key: state.pageKey, child: const HomePage()),
       ),
+      GoRoute(
+        path: '/dashboard',
+        pageBuilder:
+            (context, state) =>
+                NoTransitionPage(key: state.pageKey, child: DashboardPage()),
+      ),
 
       GoRoute(
         path: '/maps',
@@ -55,7 +63,7 @@ final $appRoutes = [
             (context, state) =>
                 NoTransitionPage(key: state.pageKey, child: MapPage()),
       ),
-     
+
       GoRoute(
         path: '/chats',
         pageBuilder:
@@ -64,10 +72,16 @@ final $appRoutes = [
       ),
 
       GoRoute(
-        path: '/profile',
+        path: '/profile-user',
         pageBuilder:
             (context, state) =>
-                NoTransitionPage(key: state.pageKey, child: ProfilePage()),
+                NoTransitionPage(key: state.pageKey, child: ProfileUserPage()),
+      ),
+      GoRoute(
+        path: '/profile-merchant',
+        pageBuilder:
+            (context, state) =>
+                NoTransitionPage(key: state.pageKey, child: ProfileMerchPage()),
       ),
     ],
   ),

@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 import 'package:gerobakgo_with_api/core/widgets/textFormField.dart';
-import 'package:gerobakgo_with_api/features/user/profile/view_model/profile_viewmodel.dart';
+import 'package:gerobakgo_with_api/features/merchant/profile/view_model/profileMerchant_viewmodel.dart';
 import 'package:gerobakgo_with_api/helper/user_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/view_models/auth_viewmodel.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfileMerchPage extends StatefulWidget {
+  const ProfileMerchPage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ProfileMerchPage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfileMerchPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -27,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authViewModel = Provider.of<AuthViewmodel>(context, listen: false);
-      final profileViewModel = Provider.of<ProfileViewmodel>(
+      final profileViewModel = Provider.of<ProfileMerchViewmodel>(
         context,
         listen: false,
       );
@@ -38,7 +38,6 @@ class _ProfilePageState extends State<ProfilePage> {
         emailController.text = user.email;
         profileViewModel.setOriginalName(user.name);
       }
-      print(user!.token);
       nameController.addListener(() {
         profileViewModel.currentName = nameController.text;
       });
@@ -56,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewmodel>(context);
     final user = authViewModel.currentUser;
-    final profileViewModel = Provider.of<ProfileViewmodel>(context);
+    final profileViewModel = Provider.of<ProfileMerchViewmodel>(context);
     if (user == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.go('/');

@@ -1,46 +1,67 @@
 import 'package:flutter/foundation.dart';
 import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
+import 'package:gerobakgo_with_api/data/repositories/location_repository.dart';
 import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
 import 'package:gerobakgo_with_api/core/view_models/auth_viewmodel.dart';
 
 class HomeViewmodel with ChangeNotifier {
   final MerchantRepository _merchantRepository;
-  final AuthViewmodel _authViewModel;
+  final LocationRepository _locationRepository;
   List<Merchant> merchants = [];
+  String? _token;
+  bool _isLoading = false;
+  String? _city;
 
-  HomeViewmodel(this._merchantRepository, this._authViewModel) {
-    // _merchantRepository.getLocationStream().listen((location) {
-    //   merchants.forEach((merchant) {
-    //     if (location.id == merchant.id) {
-    //       merchant.location = location;
-    //     }
-    //   });
-    // });
+  get city => _city;
+
+  HomeViewmodel(this._merchantRepository, this._locationRepository) {
+    _locationRepository.initialize();
   }
-  // Example method to fetch merchants
-  Future<List<Merchant>> fetchMerchants() async {
+
+  bool get isLoading => _isLoading;
+
+  set token(String token) {
+    _token = token;
+    if (mounted) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchLocation() async {
     try {
-      final token = _authViewModel.token;
-      if (token != null) {
-        merchants = await _merchantRepository.getMerchants(token);
+      final location = await _locationRepository.getCurrentPosition();
+      final cityName = await _locationRepository.getCityNameFromOSM(
+        location.latitude,
+        location.longitude,
+      );
+      _city = cityName;
+      notifyListeners();
+    } catch (e) {
+      debugPrint("error $e");
+    }
+  }
+
+  Future<List<Merchant>> fetchMerchants() async {
+    if (_isLoading) return merchants; // Prevent multiple calls
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      if (_token != null) {
+        merchants = await _merchantRepository.getMerchants(_token!);
         return merchants;
       } else {
         throw Exception('Token is not available');
       }
     } catch (e) {
-      print("Error fetching merchants in home view $e");
-      // Handle error
+      debugPrint("Error fetching merchants in home view $e");
       return [];
     } finally {
-      notifyListeners(); // Notify listeners after fetching merchants
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  String currentCity = 'Depok';
-
-  // Example method to update the current city
-  void updateCity(String newCity) {
-    currentCity = newCity;
-    notifyListeners();
-  }
+  bool get mounted => hasListeners;
 }

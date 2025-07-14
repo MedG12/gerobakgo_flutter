@@ -4,15 +4,27 @@ import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
 
 class DetailViewmodel with ChangeNotifier {
   final MerchantRepository _merchantRepository;
-  int _merchantId = 0;
+  int merchantId = 0;
+  bool isInitialized = false;
+  Merchant? merchant;
 
   DetailViewmodel(this._merchantRepository);
-  set setMerchantId(int id) {
-    _merchantId = id;
-    notifyListeners();
+
+  Future<void> getMerchantById(id, String token) async {
+    try {
+      merchant = await _merchantRepository.getMerchantById(id, token);
+      isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      print('err $e');
+      throw Exception('error');
+    }
   }
 
-  Future<Merchant> getMerchantById(int id, String token) async {
-    return await _merchantRepository.getMerchantById(id, token);
+  void reset() {
+    merchantId = 0;
+    isInitialized = false;
+    merchant = null;
+    notifyListeners();
   }
 }

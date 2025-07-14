@@ -6,7 +6,8 @@ import 'package:gerobakgo_with_api/data/models/menu_model.dart';
 class Merchant {
   int id;
   String name;
-  String description;
+  int? userId;
+  String? description;
   String? photoUrl;
   String? openHour;
   String? closeHour;
@@ -15,8 +16,9 @@ class Merchant {
 
   Merchant({
     required this.id,
+    this.userId,
     required this.name,
-    required this.description,
+    this.description,
     this.photoUrl,
     this.openHour,
     this.closeHour,
@@ -28,6 +30,7 @@ class Merchant {
   factory Merchant.fromJson(Map<String, dynamic> json) {
     return Merchant(
       id: json['merchant_id'],
+      userId: json['user_id'],
       name: json['name'],
       description: json['description'],
       photoUrl: json['photoUrl'],
@@ -52,7 +55,7 @@ class Merchant {
       'photoUrl': photoUrl,
       'openHour': openHour,
       'closeHour': closeHour,
-      // 'menus': menus, // Pastikan key-nya sesuai dengan API
+      'menus': menus, 
     };
   }
 

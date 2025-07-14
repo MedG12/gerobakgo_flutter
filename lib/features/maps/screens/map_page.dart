@@ -100,7 +100,7 @@ class _MapPageState extends State<MapPage> {
 
                 // Description
                 Text(
-                  merchant.description,
+                  merchant.description ?? "",
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -166,6 +166,7 @@ class _MapPageState extends State<MapPage> {
             // Tile layer
             TileLayer(
               urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              userAgentPackageName: "com.example.gerobakgo_with_api",
             ),
             MarkerLayer(
               markers: [

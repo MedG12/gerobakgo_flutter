@@ -23,6 +23,7 @@ class AuthRepository {
     await _storage.delete(key: 'auth_token_expiry');
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user');
+    await prefs.remove('merchant');
     await _apiService.logout(token);
   }
 
@@ -80,7 +81,7 @@ class AuthRepository {
     final userJson = prefs.getString('user'); // Ambil JSON string
     try {
       final userMap =
-          jsonDecode(userJson!) as Map<String, dynamic>; // String → Map
+          jsonDecode(userJson!) as Map<String, dynamic>; 
 
       return User.fromMap(userMap); // Map → Objek User
     } catch (e) {

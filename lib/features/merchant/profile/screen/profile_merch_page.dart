@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gerobakgo_with_api/core/themes/app_theme.dart';
 import 'package:gerobakgo_with_api/core/widgets/textFormField.dart';
+import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
+import 'package:gerobakgo_with_api/features/merchant/profile/screen/time_picker_field.dart';
 import 'package:gerobakgo_with_api/features/merchant/profile/view_model/profileMerchant_viewmodel.dart';
+import 'package:gerobakgo_with_api/helper/time_utils.dart';
 import 'package:gerobakgo_with_api/helper/user_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +22,7 @@ class ProfileMerchPage extends StatefulWidget {
 class _ProfilePageState extends State<ProfileMerchPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -33,13 +37,29 @@ class _ProfilePageState extends State<ProfileMerchPage> {
       );
       authViewModel.init();
       final user = authViewModel.currentUser;
-      if (user != null) {
+      final merchant = authViewModel.currentMerchant;
+      if (user != null && merchant != null) {
         nameController.text = user.name;
         emailController.text = user.email;
-        profileViewModel.setOriginalName(user.name);
+        descriptionController.text = merchant.description ?? '';
+        TimeOfDay? openTime;
+        TimeOfDay? closeTime;
+        if (merchant.closeHour != null && merchant.openHour != null) {
+          openTime = TimeUtils.parseTimeString(merchant.openHour);
+          closeTime = TimeUtils.parseTimeString(merchant.closeHour);
+        }
+        profileViewModel.setOriginalValues(
+          name: user.name,
+          description: merchant.description,
+          openHour: openTime,
+          closeHour: closeTime,
+        );
       }
       nameController.addListener(() {
         profileViewModel.currentName = nameController.text;
+      });
+      descriptionController.addListener(() {
+        profileViewModel.currentDescription = descriptionController.text;
       });
     });
   }
@@ -49,6 +69,97 @@ class _ProfilePageState extends State<ProfileMerchPage> {
     nameController.dispose();
     emailController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectTime(BuildContext context, bool isOpenTime) async {
+    final profileViewModel = Provider.of<ProfileMerchViewmodel>(
+      context,
+      listen: false,
+    );
+
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime:
+          isOpenTime
+              ? (profileViewModel.currentOpenHour ?? TimeOfDay.now())
+              : (profileViewModel.currentCloseHour ?? TimeOfDay.now()),
+      builder: (BuildContext context, Widget? child) {
+        return child!;
+      },
+    );
+
+    if (picked != null) {
+      if (isOpenTime) {
+        profileViewModel.currentOpenHour = picked;
+      } else {
+        profileViewModel.currentCloseHour = picked;
+      }
+    }
+  }
+
+  Future<void> _updateProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final authViewModel = Provider.of<AuthViewmodel>(context, listen: false);
+    final profileViewModel = Provider.of<ProfileMerchViewmodel>(
+      context,
+      listen: false,
+    );
+
+    try {
+      if (profileViewModel.userHasChanges) {
+        final userUpdateSuccess = await authViewModel.updateUser(
+          profileViewModel.currentName,
+          emailController.text,
+          profileViewModel.selectedImage,
+        );
+
+        if (!userUpdateSuccess) {
+          _showErrorMessage(
+            authViewModel.errorMessage ?? 'Failed to update user profile',
+          );
+          return;
+        }
+      }
+      if (profileViewModel.merchHasChanges) {
+        final merchantUpdateSuccess = await authViewModel.updateMerchant(
+          profileViewModel.currentDescription!,
+          TimeUtils.formatTimeOfDay(profileViewModel.currentOpenHour),
+          TimeUtils.formatTimeOfDay(profileViewModel.currentCloseHour),
+        );
+
+        if (!merchantUpdateSuccess) {
+          _showErrorMessage(
+            profileViewModel.errorMessage ??
+                'Failed to update merchant profile',
+          );
+          return;
+        }
+      }
+
+      profileViewModel.setOriginalValues(
+        name: nameController.text,
+        description: descriptionController.text,
+        openHour: profileViewModel.currentOpenHour,
+        closeHour: profileViewModel.currentCloseHour,
+      );
+      profileViewModel.resetToOriginal();
+      _showSuccessMessage('Profile updated successfully!');
+    } catch (e) {
+      _showErrorMessage('Update failed: $e');
+    }
+  }
+
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
+    );
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
+    );
   }
 
   @override
@@ -175,6 +286,78 @@ class _ProfilePageState extends State<ProfileMerchPage> {
                           labelText: 'Email',
                           hintText: 'Masukkan email anda',
                         ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Deskripsi",
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 10),
+                            TextFormField(
+                              maxLines: 2,
+                              controller: descriptionController,
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(color: Colors.black),
+                              decoration: InputDecoration(
+                                hintText: "Masukkan deskripsi",
+                                hintStyle: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(color: AppTheme.grey),
+                                border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8),
+                                  ),
+                                ),
+                                focusColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Deksripsi tidak boleh kosong';
+                                }
+
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Jam Operasional',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: timePickerField(
+                                    "openHours",
+                                    profileViewModel.currentOpenHour,
+                                    "Pilih Jam Buka",
+                                    () => _selectTime(context, true),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Text('sampai'),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: // Close time field
+                                      timePickerField(
+                                    "closeHours",
+                                    profileViewModel.currentCloseHour,
+                                    "Pilih Jam Tutup",
+                                    () async =>
+                                        await _selectTime(context, false),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -191,9 +374,9 @@ class _ProfilePageState extends State<ProfileMerchPage> {
                     iconColor: Colors.white,
                     minimumSize: const Size.fromHeight(48),
                     backgroundColor:
-                        profileViewModel.isNameChanged ||
+                        profileViewModel.userHasChanges ||
                                 authViewModel.isLoading ||
-                                profileViewModel.selectedImage != null
+                                profileViewModel.merchHasChanges
                             ? AppTheme.primaryDark
                             : AppTheme.grey,
                     shape: RoundedRectangleBorder(
@@ -201,43 +384,11 @@ class _ProfilePageState extends State<ProfileMerchPage> {
                     ),
                   ),
                   onPressed:
-                      profileViewModel.isNameChanged ||
+                      profileViewModel.userHasChanges ||
                               authViewModel.isLoading ||
-                              profileViewModel.selectedImage != null
+                              profileViewModel.merchHasChanges
                           ? () async {
-                            if (!_formKey.currentState!.validate()) return;
-                            authViewModel.setLoading = true;
-                            final response = await authViewModel.updateUser(
-                              profileViewModel.currentName,
-                              emailController.text,
-                              profileViewModel.selectedImage,
-                            );
-
-                            if (response) {
-                              profileViewModel.setOriginalName(
-                                nameController.text,
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Profile updated successfully!',
-                                  ),
-                                  backgroundColor: AppTheme.success,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    authViewModel.errorMessage ??
-                                        'Update failed',
-                                  ),
-                                  backgroundColor: AppTheme.error,
-                                ),
-                              );
-                            }
-                            profileViewModel.reset();
-                            authViewModel.setLoading = false;
+                            _updateProfile();
                           }
                           : null,
                   icon:

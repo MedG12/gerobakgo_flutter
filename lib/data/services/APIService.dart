@@ -284,6 +284,47 @@ class APIService {
     }
   }
 
+  Future<Merchant> updateMerchant(
+    String description,
+    openHour,
+    closeHour,
+    id,
+    token,
+  ) async {
+    // Siapkan body request
+    final Map<String, dynamic> body = {};
+
+    // Tambahkan field ke body hanya jika tidak kosong
+    if (description.isNotEmpty) {
+      body['description'] = description;
+    }
+    if (openHour.isNotEmpty) {
+      body['openHour'] = openHour;
+    }
+    if (closeHour.isNotEmpty) {
+      body['closeHour'] = closeHour;
+    }
+
+    final response = await _requestWithToken(
+      method: "PUT",
+      endpoint: "merchant/update/$id",
+      token: token,
+      body: body,
+    );
+    switch (response.statusCode) {
+      case 200:
+        final merch = Merchant.fromJson(response.data["data"]);
+        print(merch.description);
+        return merch;
+      case 422:
+        throw Exception(response.data['message']);
+      case 401:
+        throw Exception("Authorization errro");
+      default:
+        throw Exception('Failed to add menu');
+    }
+  }
+
   Future<String> uploadMenuImage(File imagePath, int? id, String token) async {
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(imagePath.path),
@@ -348,7 +389,7 @@ class APIService {
     );
     switch (response.statusCode) {
       case 200:
-        return Menu.fromJson(response.data["data"]);
+        return Menu.fromJson(response.data['data']);
       case 422:
         throw Exception(response.data['message']);
       case 401:
@@ -357,4 +398,9 @@ class APIService {
         throw Exception('Failed to add menu');
     }
   }
+}
+
+class AuthException extends AppException {
+  const AuthException([String? message, StackTrace? stackTrace])
+    : super(message ?? 'Something went wrong ', stackTrace);
 }

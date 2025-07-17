@@ -2,24 +2,34 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:gerobakgo_with_api/data/models/merchant_model.dart';
+import 'package:gerobakgo_with_api/data/repositories/merchant_repository.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/models/user_model.dart';
 
 class AuthViewmodel with ChangeNotifier {
   final AuthRepository _authRepo;
+  final MerchantRepository _merchantRepo;
 
   User? _currentUser;
+  Merchant? _currentMerchant;
   String? _errorMessage;
   bool _isLoading = false;
   String? _token;
   bool _isInitialized = false;
 
-  AuthViewmodel(this._authRepo) {
+  AuthViewmodel(this._authRepo, this._merchantRepo) {
     init();
   }
 
   set setLoading(bool status) {
     _isLoading = status;
+    notifyListeners();
+  }
+
+  set user(User user) {
+    _currentUser = user;
+    _authRepo.saveUser(user);
     notifyListeners();
   }
 
@@ -30,6 +40,9 @@ class AuthViewmodel with ChangeNotifier {
       if (token != null) {
         _token = token;
         _currentUser = await _authRepo.getCurrentUser();
+        if (currentUser!.role == "merchant") {
+          _currentMerchant = await _merchantRepo.getCurrentMerchant();
+        }
       }
       _isInitialized = true;
       notifyListeners();
@@ -47,6 +60,7 @@ class AuthViewmodel with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   String? get token => _token;
+  Merchant? get currentMerchant => _currentMerchant;
 
   Future<bool> register(
     String email,
@@ -81,6 +95,14 @@ class AuthViewmodel with ChangeNotifier {
       // Simpan data user ke shared preferences
       _authRepo.saveUser(_currentUser!);
       _saveToken(_currentUser!.token!);
+
+      if (currentUser!.role == "merchant") {
+        _currentMerchant = await _merchantRepo.getMerchantById(
+          currentUser!.id,
+          _currentUser!.token!,
+        );
+        _merchantRepo.saveMerchant(_currentMerchant!);
+      }
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -117,6 +139,8 @@ class AuthViewmodel with ChangeNotifier {
   }
 
   Future<bool> updateUser(String name, String email, File? image) async {
+    _isLoading = true;
+    notifyListeners();
     try {
       final user = await _authRepo.updateUser(_currentUser!.id, name, _token!);
       _currentUser = user;
@@ -131,9 +155,39 @@ class AuthViewmodel with ChangeNotifier {
 
       return true;
     } catch (e) {
+      print("error update merchant $e");
       _errorMessage = e.toString();
       return false;
     } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateMerchant(
+    String description,
+    String openHour,
+    String closeHour,
+  ) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final merchant = await _merchantRepo.updateMerchant(
+        description,
+        openHour,
+        closeHour,
+        _currentUser!.id,
+        _token!,
+      );
+      _currentMerchant = merchant;
+      _merchantRepo.saveMerchant(merchant);
+      return true;
+    } catch (e) {
+      print("error update merchant $e");
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }

@@ -32,7 +32,6 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final dashboardViewmodel = context.watch<DashboardViewmodel>();
-    if (dashboardViewmodel.isInitialized) print(dashboardViewmodel.id);
     return SafeArea(
       child: Scaffold(
         body:

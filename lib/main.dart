@@ -39,6 +39,10 @@ void main() async {
                   context.read<APIService>(),
                   const FlutterSecureStorage(),
                 ),
+                MerchantRepository(
+                  context.read<APIService>(),
+                  context.read<PusherService>(),
+                ),
               ),
         ),
         ChangeNotifierProvider(

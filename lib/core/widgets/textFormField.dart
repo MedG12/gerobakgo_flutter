@@ -40,9 +40,6 @@ class TextFormFieldCustom extends StatelessWidget {
         Text(labelText, style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 10),
         TextFormField(
-          onChanged: (tex){
-            debugPrint("nilainya berubah $tex");
-          },
           enabled: enabled,
           obscureText: obscureText ?? false,
           key: valueKey != null ? ValueKey(valueKey) : null,

@@ -7,8 +7,10 @@ abstract class AppException implements Exception {
 }
 
 class AuthException extends AppException {
-  const AuthException([String? message, StackTrace? stackTrace])
-    : super(message ?? 'Something went wrong ', stackTrace);
+  const AuthException([
+    String message = 'Authentication failed',
+    StackTrace? stackTrace,
+  ]) : super(message, stackTrace);
 }
 
 // Auth-related
